@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { isAuthenticated, getUserRole } from '../utils/auth';
@@ -8,8 +8,12 @@ const WardenGatepassAction = () => {
     const navigate = useNavigate();
     const [status, setStatus] = useState('loading'); // loading, success, error, unauthorized
     const [message, setMessage] = useState('');
+    const processedRef = useRef(false);
 
     useEffect(() => {
+        if (processedRef.current) return;
+        processedRef.current = true;
+
         const processAction = async () => {
             if (!isAuthenticated()) {
                 setStatus('unauthorized');

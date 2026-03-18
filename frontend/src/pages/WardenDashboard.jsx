@@ -508,7 +508,7 @@ const WardenDashboard = () => {
 
                 <div className="gatepass-list stagger-list table-container">
                   {gatepasses.filter(gp => {
-                    if (gatepassTab === 'pending') return gp.status === 'pending_warden';
+                    if (gatepassTab === 'pending') return gp.status === 'pending_warden' || gp.status === 'pending_parent';
                     if (gatepassTab === 'approved') return gp.status === 'approved';
                     if (gatepassTab === 'rejected') return gp.status === 'rejected' || gp.status === 'rejected_parent';
                     return false;
@@ -529,7 +529,7 @@ const WardenDashboard = () => {
                       <tbody>
                         {gatepasses
                           .filter(gp => {
-                            if (gatepassTab === 'pending') return gp.status === 'pending_warden';
+                            if (gatepassTab === 'pending') return gp.status === 'pending_warden' || gp.status === 'pending_parent';
                             if (gatepassTab === 'approved') return gp.status === 'approved';
                             if (gatepassTab === 'rejected') return gp.status === 'rejected' || gp.status === 'rejected_parent';
                             return false;
@@ -557,7 +557,7 @@ const WardenDashboard = () => {
                                 </span>
                               </td>
                               <td>
-                                <span className={`status-badge status-${gp.status === 'pending_warden' ? 'pending' : gp.status}`}>
+                                <span className={`status-badge status-${(gp.status === 'pending_warden' || gp.status === 'pending_parent') ? 'pending' : gp.status}`}>
                                   {gp.status.replace(/_/g, ' ')}
                                 </span>
                                 {gp.approvedBy && <div style={{ fontSize: '0.7rem', color: '#666', marginTop: '2px' }}>By: {gp.approvedBy.name}</div>}
@@ -580,6 +580,8 @@ const WardenDashboard = () => {
                                       Reject
                                     </button>
                                   </div>
+                                ) : gp.status === 'pending_parent' ? (
+                                  <span style={{ fontSize: '0.85rem', color: '#ff9800', fontStyle: 'italic' }}>Waiting for Parent</span>
                                 ) : (
                                   <span style={{ fontSize: '0.85rem', color: '#aaa', fontStyle: 'italic' }}>No actions</span>
                                 )}

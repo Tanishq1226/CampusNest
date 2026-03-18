@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../utils/api';
 
@@ -6,8 +6,12 @@ const ParentGatepassAction = () => {
     const [searchParams] = useSearchParams();
     const [status, setStatus] = useState('loading'); // loading, success, error
     const [message, setMessage] = useState('');
+    const processedRef = useRef(false);
 
     useEffect(() => {
+        if (processedRef.current) return;
+        processedRef.current = true;
+
         const processAction = async () => {
             const id = searchParams.get('id');
             const action = searchParams.get('action');

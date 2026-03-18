@@ -185,7 +185,7 @@ export const getPendingGatepasses = async (req, res) => {
 export const getAllGatepasses = async (req, res) => {
     try {
         const gatepasses = await Gatepass.find()
-            .populate('student', 'name email studentId')
+            .populate('student', 'name email studentId parentName parentPhone')
             .populate('approvedBy', 'name')
             .sort({ createdAt: -1 });
         res.json({ gatepasses });
