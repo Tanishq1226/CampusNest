@@ -25,9 +25,9 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await api.post('/auth/login', formData);
+      const response = await api.post('/api/auth/login', formData);
       setAuth(response.data.token, response.data.user);
-      
+
       // Redirect based on role
       const role = response.data.user.role;
       if (role === 'student') {
