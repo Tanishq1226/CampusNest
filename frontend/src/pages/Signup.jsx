@@ -52,7 +52,7 @@ const Signup = () => {
 
     try {
       const { confirmPassword, ...signupData } = formData;
-      const response = await api.post('/api/auth/signup', signupData);
+      const response = await api.post('/auth/signup', signupData);
 
       // Don't set auth yet, ask for OTP
       setUserId(response.data.userId);
@@ -70,7 +70,7 @@ const Signup = () => {
     setError('');
     setLoading(true);
     try {
-      const response = await api.post('/api/auth/verify-otp', { userId, otp });
+      const response = await api.post('/auth/verify-otp', { userId, otp });
       setAuth(response.data.token, response.data.user);
 
       const role = response.data.user.role;
