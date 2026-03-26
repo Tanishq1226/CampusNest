@@ -264,7 +264,7 @@ College Management System
   await sendEmailSafe({
     to: wardenEmail,
     subject,
-    text: text + \`\n\n(Note: If links are not clickable, copy and paste them into your browser)\`
+    text: text + '\n\n(Note: If links are not clickable, copy and paste them into your browser)'
   });
 };
 
@@ -273,7 +273,7 @@ export const sendGatepassStatusToStudent = async (studentEmail, status, rejectio
   const text = `
 Your gatepass request status has been updated to: ${status}
 
-${rejectionReason ? \`Reason: \${rejectionReason}\` : ''}
+${rejectionReason ? `Reason: ${rejectionReason}` : ''}
 
 Regards,
 College Management System
