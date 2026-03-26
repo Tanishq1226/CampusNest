@@ -1,76 +1,30 @@
-import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 
-let transporter = null;
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+}
 
-const getTransporter = async () => {
-  if (transporter) return transporter;
-
-  const {
-    SMTP_HOST,
-    SMTP_PORT,
-    SMTP_SECURE,
-    SMTP_USER,
-    SMTP_PASS,
-    SMTP_FROM
-  } = process.env;
-
-  if (SMTP_HOST && SMTP_USER && SMTP_PASS) {
-    transporter = nodemailer.createTransport({
-      host: SMTP_HOST,
-      port: Number(SMTP_PORT) || 587,
-      secure: SMTP_SECURE === 'true', // true for 465, false for others
-      auth: {
-        user: SMTP_USER,
-        pass: SMTP_PASS
-      }
-    });
-    // record a default from address for this transporter
-    transporter.defaultFrom = SMTP_FROM || `"College Management" <${SMTP_USER}>`;
-  } else {
-    // If transporter isn't configured from env, create an Ethereal test account
-    try {
-      const testAccount = await nodemailer.createTestAccount();
-      transporter = nodemailer.createTransport({
-        host: testAccount.smtp.host,
-        port: testAccount.smtp.port,
-        secure: testAccount.smtp.secure,
-        auth: {
-          user: testAccount.user,
-          pass: testAccount.pass
-        }
-      });
-      transporter.defaultFrom = SMTP_FROM || `"College Management" <${testAccount.user}>`;
-      console.info('No SMTP config found — using Ethereal test account for emails');
-    } catch (err) {
-      console.warn('Email not sent: SMTP configuration is missing and test account creation failed');
-      console.error(err);
-      return null;
-    }
-  }
-  return transporter;
-};
+const getFromAddress = () => process.env.SMTP_FROM || '"College Management" <ajaynagar1226@gmail.com>';
 
 const sendEmailSafe = async (options) => {
-  const mailTransport = await getTransporter();
+  if (!process.env.SENDGRID_API_KEY) {
+    console.warn('Email not sent: SENDGRID_API_KEY is not configured in environment variables');
+    return;
+  }
 
-  if (!mailTransport) return;
+  const msg = {
+    to: options.to,
+    from: getFromAddress(),
+    subject: options.subject,
+    text: options.text,
+    html: options.html
+  };
 
   try {
-    const info = await mailTransport.sendMail({
-      from: mailTransport.defaultFrom || `"College Management" <no-reply@example.com>`,
-      ...options
-    });
-
-    // If using preview (Ethereal) logic check
-    // If the host is smtp.ethereal.email, it's a test account
-    if (mailTransport.transporter.host === 'smtp.ethereal.email' || info.messageId.includes('ethereal')) {
-      try {
-        const preview = nodemailer.getTestMessageUrl(info);
-        if (preview) console.info('Preview email at:', preview);
-      } catch (e) { }
-    }
+    await sgMail.send(msg);
+    console.log('Email successfully sent via SendGrid API to:', options.to);
   } catch (err) {
-    console.error('Error sending email:', err.message || err);
+    console.error('Error sending email via SendGrid:', err.response?.body || err.message || err);
   }
 };
 
@@ -310,7 +264,7 @@ College Management System
   await sendEmailSafe({
     to: wardenEmail,
     subject,
-    text: text + `\n\n(Note: If links are not clickable, copy and paste them into your browser)`
+    text: text + \`\n\n(Note: If links are not clickable, copy and paste them into your browser)\`
   });
 };
 
@@ -319,7 +273,7 @@ export const sendGatepassStatusToStudent = async (studentEmail, status, rejectio
   const text = `
 Your gatepass request status has been updated to: ${status}
 
-${rejectionReason ? `Reason: ${rejectionReason}` : ''}
+${rejectionReason ? \`Reason: \${rejectionReason}\` : ''}
 
 Regards,
 College Management System
@@ -331,5 +285,3 @@ College Management System
     text
   });
 };
-
-
